@@ -5,14 +5,15 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     private string HorizontalAxis = "Horizontal";
+    private string VerticalAxis = "Vertical";
+
     private KeyCode _jumpButton = KeyCode.Space;
     private Rigidbody _rigidBody;
 
-    [SerializeField] private float _force;
-    [SerializeField] private float _rotationForce;
+    [SerializeField] private float _rollSpeed;
+    [SerializeField] private float _jumpSpeed;
 
-    private float _xInput;
-    private bool _isJumping;
+    private bool _isJumpKeyPressed;
 
     private void Awake()
     {
@@ -21,13 +22,22 @@ public class Ball : MonoBehaviour
 
     private void Update()
     {
-        _xInput = Input.GetAxis(HorizontalAxis);
-        _isJumping = Input.GetKey(_jumpButton);
+        if (Input.GetKeyDown(_jumpButton))
+            _isJumpKeyPressed = true;
     }
 
     private void FixedUpdate()
     {
-        if (_isJumping)
-            _rigidBody.AddForce(transform.up * _force);
+        Vector3 input = new Vector3(Input.GetAxis(HorizontalAxis), 0, Input.GetAxis(VerticalAxis));
+        Vector3 normalizedInput = input.normalized;
+
+        _rigidBody.AddForce(normalizedInput * _rollSpeed);
+
+        if (_isJumpKeyPressed) 
+        {
+            _rigidBody.AddForce(Vector3.up * _jumpSpeed, ForceMode.Impulse);
+            _isJumpKeyPressed = false;
+        }
+
     }
 }
