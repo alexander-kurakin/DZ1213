@@ -17,10 +17,11 @@ public class Ball : MonoBehaviour
     [SerializeField] private AudioClip _loseAudio;
     [SerializeField] private TextMeshProUGUI _textMeshProUGUI;
     [SerializeField] private Vector3 _particleSystemPositionOffset;
+    [SerializeField] private Coin[] _coinsGameObjects;
     [SerializeField] private float _rollSpeed;
     [SerializeField] private float _jumpSpeed;
     [SerializeField] private float _targetTime;
-    
+
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
     private KeyCode _jumpButton = KeyCode.Space;
@@ -32,7 +33,6 @@ public class Ball : MonoBehaviour
     private bool _isJumpKeyPressed = false;
     private bool _isGrounded = false;
     private bool _isSoundPlaying = false;
-    private bool _resetKinematicNextFrame = false;
     private bool _isStillPlaying = true;
     private float _currentTime;
     private int _currentCoins;
@@ -47,78 +47,101 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
-        _currentTime = _targetTime;
+        ResetGameplayTimer();
         _startPosition = transform.position;
         DisplayCurrentTime();
     }
 
     private void Update()
     {
+
+        if (_isStillPlaying == false && Input.GetKeyDown(_restartKey))
+        {
+            Restart();
+            return;
+        }
+
         if (_currentTime <= 0)
+        {
             Lose();
+            return;
+        }
 
         if (_currentCoins == _totalCoins)
-            Win();
-
-        if (_isStillPlaying == false)
         {
-            if (Input.GetKeyDown(_restartKey))
-                Restart();
+            Win();
+            return;
         }
-        else
+
+        if (_isStillPlaying)
         {
             _currentTime -= Time.deltaTime;
             DisplayCurrentTime();
 
-            if (Input.GetKeyDown(_jumpButton) && _isGrounded)
-                _isJumpKeyPressed = true;
-
-            _input = new Vector3(Input.GetAxis(HorizontalAxis), 0, Input.GetAxis(VerticalAxis));
-            _normalizedInput = _input.normalized;
+            HandlePhysicalMovement();
         }
+    }
+
+    private void ResetGameplayTimer()
+    {
+        _currentTime = _targetTime;
+    }
+
+    private void ResetCoins()
+    {
+        foreach (Coin coin in _coinsGameObjects) 
+        {
+            coin.gameObject.SetActive(true);
+        }
+            
+    }
+
+    private void HandlePhysicalMovement()
+    {
+        if (Input.GetKeyDown(_jumpButton) && _isGrounded)
+            _isJumpKeyPressed = true;
+
+        _input = new Vector3(Input.GetAxis(HorizontalAxis), 0, Input.GetAxis(VerticalAxis));
+        _normalizedInput = _input.normalized;
     }
 
     private void Win()
     {
-        _rigidBody.isKinematic = true;
-        Time.timeScale = 0.0f;
-        PlaySingleTime(_winAudio);
-        _isStillPlaying = false;
-
-        Debug.Log($"Отличная работа! Жмите {_restartKey} если хотите повторить!");
+        StopGameplay(_winAudio, $"Отличная работа! Жмите {_restartKey} если хотите повторить!");
     }
 
     private void Lose()
     {
-        _rigidBody.isKinematic = true;
+        StopGameplay(_loseAudio, $"Вы не успели! Жмите {_restartKey} и погнали снова!");
+    }
+
+    private void StopGameplay(AudioClip clipToPlay, String textToShow) 
+    {
         Time.timeScale = 0.0f;
-        PlaySingleTime(_loseAudio);
+        PlaySingleTime(clipToPlay);
         _isStillPlaying = false;
 
-        Debug.Log($"Вы не успели! Жмите {_restartKey} и погнали снова!");
+        Debug.Log(textToShow);
     }
 
     private void Restart()
     {
         _isSoundPlaying = false;
-        _isStillPlaying = true;
-        _currentTime = _targetTime;
 
-        RigidbodyInterpolation rigidbodyInterpolation = _rigidBody.interpolation;
+        _rigidBody.isKinematic = true;
 
-        _rigidBody.interpolation = RigidbodyInterpolation.None;
-
-        _rigidBody.isKinematic = false;
-        _rigidBody.velocity = Vector3.zero;
-        _rigidBody.angularVelocity = Vector3.zero;
-        _rigidBody.Sleep();
-        _rigidBody.WakeUp();
-        _rigidBody.interpolation = rigidbodyInterpolation;
+        ResetGameplayTimer();
+        _currentCoins = 0;
+        ResetCoins();
 
         transform.position = _startPosition;
-
         Time.timeScale = 1.0f;
 
+        _rigidBody.isKinematic = false;
+
+        _isStillPlaying = true;
+
+        
     }
     private void DisplayCurrentTime()
     {
@@ -127,12 +150,15 @@ public class Ball : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _rigidBody.AddForce(_normalizedInput * _rollSpeed);
-
-        if (_isJumpKeyPressed && _isGrounded) 
+        if (_isStillPlaying)
         {
-            _rigidBody.AddForce(Vector3.up * _jumpSpeed, ForceMode.Impulse);
-            _isJumpKeyPressed = false;
+          _rigidBody.AddForce(_normalizedInput * _rollSpeed);
+
+            if (_isJumpKeyPressed && _isGrounded)
+            {
+                _rigidBody.AddForce(Vector3.up * _jumpSpeed, ForceMode.Impulse);
+                _isJumpKeyPressed = false;
+            }
         }
     }
 
