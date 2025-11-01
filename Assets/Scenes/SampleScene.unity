@@ -197,6 +197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 14004015}
+  - component: {fileID: 14004016}
   m_Layer: 0
   m_Name: Coins
   m_TagString: Untagged
@@ -240,6 +241,18 @@ Transform:
   - {fileID: 1801769215}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &14004016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14004014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efcd6e89a2be2cb46a9173d077ba7128, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &27427205
 GameObject:
   m_ObjectHideFlags: 0
@@ -11134,6 +11147,8 @@ GameObject:
   - component: {fileID: 399445393}
   - component: {fileID: 399445395}
   - component: {fileID: 399445396}
+  - component: {fileID: 399445398}
+  - component: {fileID: 399445397}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -11350,6 +11365,31 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &399445397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399445391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6955b3a3948fac43a9afeb050cfb51c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &399445398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399445391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 853af3df761086d4b88192b166de8276, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _wallet: {fileID: 399445397}
 --- !u!1001 &414728860
 PrefabInstance:
   m_ObjectHideFlags: 0
