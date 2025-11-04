@@ -2,6 +2,7 @@ Assets used:
 
 Models
 [Synty studios] - POLYGON - Prototype
+
 [Synty studios] - POLYGON - Nightclubs
 
 Audio
@@ -12,5 +13,6 @@ FX
 
 Post effects, environment
 [Kronnect] - Beautify
+
 [Distand lands] - COZY Pro
 
