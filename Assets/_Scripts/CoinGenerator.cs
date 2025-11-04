@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectHolder : MonoBehaviour
+public class CoinGenerator : MonoBehaviour
 {
     private Coin[] _coins;
 
@@ -13,14 +13,11 @@ public class ObjectHolder : MonoBehaviour
 
     public int TotalCoins() => _coins.Length;
 
-    public int ActiveCoins() 
+    public void ResetCoinsState()
     {
-        int _activeCoinsCounter = 0;
-        
         foreach (Coin coin in _coins)
-            if (coin.gameObject.activeSelf == true)
-                _activeCoinsCounter++;
-
-        return _activeCoinsCounter;
+        {
+            coin.gameObject.SetActive(true);
+        }
     }
 }

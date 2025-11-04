@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -13,87 +11,87 @@ public class Ball : MonoBehaviour
     [SerializeField] private ParticleSystem _jumpParticleSystemTwo;
     [SerializeField] private AudioClip _jumpEffectAudio;
     [SerializeField] private AudioClip _coinPickupAudio;
-    [SerializeField] private AudioClip _winAudio;
-    [SerializeField] private AudioClip _loseAudio;
-    [SerializeField] private TextMeshProUGUI _textMeshProUGUI;
     [SerializeField] private Vector3 _particleSystemPositionOffset;
-    [SerializeField] private Coin[] _coinsGameObjects;
+
     [SerializeField] private float _rollSpeed;
     [SerializeField] private float _jumpSpeed;
-    [SerializeField] private float _targetTime;
+    [SerializeField] private float _jumpSoundRate;
 
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
     private KeyCode _jumpButton = KeyCode.Space;
-    private KeyCode _restartKey = KeyCode.R;
+    
     private Vector3 _input;
     private Vector3 _normalizedInput;
     private Vector3 _startPosition;
+    private Wallet _wallet;
 
     private bool _isJumpKeyPressed = false;
     private bool _isGrounded = false;
-    private bool _isSoundPlaying = false;
-    private bool _isStillPlaying = true;
-    private float _currentTime;
-    private int _currentCoins;
-    private int _totalCoins;
+    private bool _isMovementEnabled = true;
+    private bool _isPhysicsEnabled = true;
+
+    public bool MovementEnabled() => _isMovementEnabled;
+    public bool PhysicsEnabled() => _isPhysicsEnabled;
 
     private void Awake()
     {
         _rigidBody = GetComponent<Rigidbody>();
         _audioSource = GetComponent<AudioSource>();
-        _totalCoins = FindObjectsOfType<Coin>().Length;
+        _wallet = GetComponent<Wallet>();
     }
 
     private void Start()
     {
-        ResetGameplayTimer();
-        _startPosition = transform.position;
-        DisplayCurrentTime();
+        SaveStartPosition();
     }
 
     private void Update()
     {
-
-        if (_isStillPlaying == false && Input.GetKeyDown(_restartKey))
-        {
-            Restart();
-            return;
-        }
-
-        if (_currentTime <= 0)
-        {
-            Lose();
-            return;
-        }
-
-        if (_currentCoins == _totalCoins)
-        {
-            Win();
-            return;
-        }
-
-        if (_isStillPlaying)
-        {
-            _currentTime -= Time.deltaTime;
-            DisplayCurrentTime();
-
+        if (_isMovementEnabled)
             HandlePhysicalMovement();
-        }
     }
 
-    private void ResetGameplayTimer()
+    private void SaveStartPosition()
     {
-        _currentTime = _targetTime;
+        _startPosition = transform.position;
     }
 
-    private void ResetCoins()
+    public void MoveToStartPosition()
     {
-        foreach (Coin coin in _coinsGameObjects) 
-        {
-            coin.gameObject.SetActive(true);
-        }
-            
+        transform.position = _startPosition;
+    }
+
+    public void EnableMovement()
+    {
+        _isMovementEnabled = true;
+    }
+
+    public void DisableMovement()
+    {
+        _isMovementEnabled = false;
+    }
+
+    public void EnablePhysics()
+    {
+        _rigidBody.isKinematic = false;
+        _isPhysicsEnabled = true;
+    }
+
+    public void DisablePhysics()
+    {
+        _rigidBody.isKinematic = true;
+        _isPhysicsEnabled = false;
+    }
+
+    public int GetBalance() 
+    {
+        return _wallet.Coins;    
+    }
+
+    public void ResetBalance()
+    {
+        _wallet.ResetCoins();
     }
 
     private void HandlePhysicalMovement()
@@ -105,74 +103,24 @@ public class Ball : MonoBehaviour
         _normalizedInput = _input.normalized;
     }
 
-    private void Win()
-    {
-        StopGameplay(_winAudio, $"Отличная работа! Жмите {_restartKey} если хотите повторить!");
-    }
-
-    private void Lose()
-    {
-        StopGameplay(_loseAudio, $"Вы не успели! Жмите {_restartKey} и погнали снова!");
-    }
-
-    private void StopGameplay(AudioClip clipToPlay, String textToShow) 
-    {
-        Time.timeScale = 0.0f;
-        PlaySingleTime(clipToPlay);
-        _isStillPlaying = false;
-
-        Debug.Log(textToShow);
-    }
-
-    private void Restart()
-    {
-        _isSoundPlaying = false;
-
-        _rigidBody.isKinematic = true;
-
-        ResetGameplayTimer();
-        _currentCoins = 0;
-        ResetCoins();
-
-        transform.position = _startPosition;
-        Time.timeScale = 1.0f;
-
-        _rigidBody.isKinematic = false;
-
-        _isStillPlaying = true;
-
-        
-    }
-    private void DisplayCurrentTime()
-    {
-        _textMeshProUGUI.text = _currentTime.ToString("0.00");
-    }
-
     private void FixedUpdate()
     {
-        if (_isStillPlaying)
+        if (_isMovementEnabled)
         {
           _rigidBody.AddForce(_normalizedInput * _rollSpeed);
 
             if (_isJumpKeyPressed && _isGrounded)
             {
                 _rigidBody.AddForce(Vector3.up * _jumpSpeed, ForceMode.Impulse);
+                _audioSource.PlayOneShot(_jumpEffectAudio);
                 _isJumpKeyPressed = false;
             }
         }
     }
 
-    public void AddCoin()
-    {
-        _currentCoins++;
-        _audioSource.PlayOneShot(_coinPickupAudio);
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
-        Floor floor = collision.gameObject.GetComponent<Floor>();
-
-        if (floor != null)
+        if (collision.gameObject.TryGetComponent(out Floor floor) == true)
         {
             PlayJumpEffectOnCollision(collision);
             _isGrounded = true;
@@ -181,17 +129,13 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
-        Floor floor = collision.gameObject.GetComponent<Floor>();
-        
-        if (floor != null)
+        if (collision.gameObject.TryGetComponent(out Floor floor) == true)
             _isGrounded = true;
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        Floor floor = collision.gameObject.GetComponent<Floor>();
-
-        if (floor != null)
+        if (collision.gameObject.TryGetComponent(out Floor floor) == true)
             _isGrounded = false;
     }
 
@@ -202,16 +146,5 @@ public class Ball : MonoBehaviour
 
         _jumpParticleSystem.Play();
         _jumpParticleSystemTwo.Play();
-
-        _audioSource.PlayOneShot(_jumpEffectAudio);
-    }
-
-    private void PlaySingleTime(AudioClip audioClip)
-    {
-        if (_isSoundPlaying == false)
-        {
-            _audioSource.PlayOneShot(audioClip);
-            _isSoundPlaying = true;
-        }
     }
 }

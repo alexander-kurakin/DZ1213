@@ -8,4 +8,5 @@ public class Wallet : MonoBehaviour
 
     public void AddCoin() => Coins++;
 
+    public void ResetCoins() => Coins = 0;
 }
