@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 14004015}
   - component: {fileID: 14004016}
   m_Layer: 0
-  m_Name: CoinGenerator
+  m_Name: CoinPrefabs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15176,7 +15176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ball: {fileID: 399445394}
-  _coinGenerator: {fileID: 14004016}
+  _coinPrefabsHandler: {fileID: 14004016}
   _coinsText: {fileID: 1603963939}
   _timerText: {fileID: 1190419862}
   _gameplayAudioSource: {fileID: 399445396}

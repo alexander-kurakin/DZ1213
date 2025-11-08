@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
 {
     [SerializeField] Ball _ball;
-    [SerializeField] CoinGenerator _coinGenerator;
+    [SerializeField] CoinPrefabsHandler _coinPrefabsHandler;
     [SerializeField] TextMeshProUGUI _coinsText;
     [SerializeField] TextMeshProUGUI _timerText;
     [SerializeField] AudioSource _gameplayAudioSource;
@@ -30,9 +28,9 @@ public class GameplayManager : MonoBehaviour
 
     private void Start()
     {
-        _totalCoins = _coinGenerator.TotalCoins();
+        _totalCoins = _coinPrefabsHandler.TotalCoins();
 
-        _coinGenerator.ResetCoinsState();
+        _coinPrefabsHandler.ResetCoinsState();
         ResetGameplayTimer();
     }
 
@@ -95,7 +93,7 @@ public class GameplayManager : MonoBehaviour
 
         ResetOneTimeAudioPlayer();
 
-        _coinGenerator.ResetCoinsState();
+        _coinPrefabsHandler.ResetCoinsState();
         _ball.ResetBalance();
 
         if (_ball.PhysicsEnabled() == false)

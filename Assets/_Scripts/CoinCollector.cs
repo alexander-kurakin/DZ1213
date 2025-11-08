@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CoinCollector : MonoBehaviour
@@ -28,7 +26,7 @@ public class CoinCollector : MonoBehaviour
         PlayCollectSound();
         PlayCollectParticle();
 
-        coin.gameObject.SetActive(false);
+        coin.Collect();
     }
 
     private void PlayCollectSound()
